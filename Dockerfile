@@ -19,6 +19,7 @@ RUN \
     rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/*
 
 RUN \
+    OPENCV_VERSION=4.2.0 && \
     echo "===== install opencv4 =====" && \
     apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y software-properties-common && \
     add-apt-repository "deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ xenial-security main" && \
@@ -28,8 +29,8 @@ RUN \
     libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev \
     libopenexr-dev libxvidcore-dev libx264-dev libatlas-base-dev gfortran ffmpeg && \
     echo "downloading opencv4..." && \
-    git clone https://github.com/opencv/opencv.git $HOME/install/opencv --branch 4.1.2 --progress && \
-    git clone https://github.com/opencv/opencv_contrib.git $HOME/install/opencv_contrib --branch 4.1.2 --progress && \
+    git clone https://github.com/opencv/opencv.git $HOME/install/opencv --branch ${OPENCV_VERSION} --progress && \
+    git clone https://github.com/opencv/opencv_contrib.git $HOME/install/opencv_contrib --branch ${OPENCV_VERSION} --progress && \
     echo "making opencv4..." && \
     mkdir $HOME/install/opencv/build && \
     cd $HOME/install/opencv/build && \
@@ -46,9 +47,10 @@ RUN \
     rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/*
 
 RUN \
+    SPDLOG_VERSION=v1.5.0 && \
     echo "===== install spdlog =====" && \
     echo "downloading spdlog..." && \
-    git clone https://github.com/gabime/spdlog.git $HOME/install/spdlog --branch v1.4.2 --progress && \
+    git clone https://github.com/gabime/spdlog.git $HOME/install/spdlog --branch ${SPDLOG_VERSION} --progress && \
     echo "making spdlog..." && \
     mkdir $HOME/install/spdlog/build && cd $HOME/install/spdlog/build && \
     cmake .. && make -j$(nproc) && make install && \
@@ -56,15 +58,14 @@ RUN \
     rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/*
 
 RUN \
+    MXNET_VERSION=1.6.0 && \
     echo "===== install mxnet =====" && \
     apt-get update && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential git libatlas-base-dev libopencv-dev python && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential git libatlas-base-dev libopencv-dev python curl && \
     echo "downloading mxnet..." && \
-    git clone --no-checkout https://github.com/apache/incubator-mxnet.git $HOME/install/mxnet --progress && \
-    cd $HOME/install/mxnet && \
-    git checkout 1.5.1 -b 1.5.1 && \
-    git submodule update --init && \
+    git clone  --recursive https://github.com/apache/incubator-mxnet.git $HOME/install/mxnet --branch ${MXNET_VERSION} --progress && \
     echo "making mxnet..." && \
+    cd $HOME/install/mxnet && \
     cp $HOME/install/mxnet/make/config.mk $HOME/install/mxnet && \
     sed -i 's/USE_CPP_PACKAGE = 0/USE_CPP_PACKAGE = 1/g' $HOME/install/mxnet/config.mk && \
     sed -i 's/USE_MKLDNN =/USE_MKLDNN = 1/g' $HOME/install/mxnet/config.mk && \
